@@ -1,5 +1,5 @@
 // ============================================
-// CONFIG — Llena estos valores antes de subir
+// CONFIG
 // ============================================
 const CONFIG = {
   SPOTIFY_CLIENT_ID: '<<RELLENA_CON_TU_CLIENT_ID>>',
@@ -8,12 +8,11 @@ const CONFIG = {
   SCOPES: 'streaming user-read-email user-read-private user-modify-playback-state user-read-playback-state',
 };
 
-// Historial del chat (memoria conversacional)
 let chatHistory = [];
-const MAX_HISTORY = 10;
+const MAX_HISTORY = 12;
 
 // ============================================
-// REVEAL Y NAV (lógica del boceto original)
+// REVEAL Y NAV
 // ============================================
 const dots = document.querySelectorAll('.dots a');
 const sections = document.querySelectorAll('section.slide');
@@ -60,7 +59,7 @@ setTimeout(() => {
 }, 80);
 
 // ============================================
-// SPOTIFY OAUTH (PKCE FLOW)
+// SPOTIFY OAUTH
 // ============================================
 function generateCodeVerifier() {
   const array = new Uint8Array(64);
@@ -254,7 +253,7 @@ async function playTrack(trackUri) {
 }
 
 // ============================================
-// CHAT — LLAMADA AL WORKER (CON HISTORIAL)
+// CHAT — WORKER (CON HISTORIAL)
 // ============================================
 async function askClaude(messages) {
   const res = await fetch(CONFIG.WORKER_URL, {
@@ -292,14 +291,14 @@ function setStatus(state) {
 }
 
 function showLoginUI() {
-  chatLogin.hidden = false;
-  chatInputWrap.hidden = true;
+  chatLogin.style.display = 'flex';
+  chatInputWrap.style.display = 'none';
   setStatus('');
 }
 
 function showChatUI() {
-  chatLogin.hidden = true;
-  chatInputWrap.hidden = false;
+  chatLogin.style.display = 'none';
+  chatInputWrap.style.display = 'block';
 }
 
 function addMessage(sender, text, isLoading = false) {
@@ -346,9 +345,11 @@ chatInput.addEventListener('keydown', async (e) => {
       throw new Error('Respuesta inesperada de Claude');
     }
 
+    // Guardar respuesta de Claude en formato natural y legible
+    // (mucho mejor para el contexto de las siguientes conversaciones)
     chatHistory.push({
       role: 'assistant',
-      content: JSON.stringify(recommendation),
+      content: `Te recomendé "${recommendation.track}" de ${recommendation.artist}. ${recommendation.reason || ''}`,
     });
 
     loadingMsg.textContent = 'buscando en spotify...';
