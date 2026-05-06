@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>paco · personal site</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..900,0..100;1,9..144,300..900,0..100&family=Manrope:wght@300..700&family=Shippori+Mincho:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="topnav">
+  <div class="brand">paco<span class="dot"></span></div>
+  <ul>
+    <li><a href="#about">sobre</a></li>
+    <li><a href="#projects">proyectos</a></li>
+    <li><a href="#stack">stack</a></li>
+    <li><a href="#contact">contacto</a></li>
+  </ul>
+</nav>
+
+<!-- SIDE DOTS -->
+<aside class="dots">
+  <a href="#hero" data-target="hero" class="active"><span>inicio</span></a>
+  <a href="#about" data-target="about"><span>sobre mí</span></a>
+  <a href="#projects" data-target="projects"><span>proyectos</span></a>
+  <a href="#stack" data-target="stack"><span>stack</span></a>
+  <a href="#contact" data-target="contact"><span>contacto</span></a>
+</aside>
+
+<main class="scroller">
+
+  <!-- ============ HERO ============ -->
+  <section id="hero" class="slide">
+    <div class="sun"></div>
+    <svg class="mountain" viewBox="0 0 1440 400" preserveAspectRatio="none">
+      <path d="M0,400 L0,290 L160,200 L320,260 L460,170 L620,240 L780,180 L940,250 L1100,200 L1260,240 L1440,210 L1440,400 Z" fill="#B8C5C9" opacity="0.55"/>
+      <path d="M0,400 L0,330 L150,250 L300,300 L460,220 L600,290 L760,230 L920,300 L1080,250 L1240,300 L1440,270 L1440,400 Z" fill="#7A8B91" opacity="0.65"/>
+      <path d="M0,400 L0,360 L420,360 L640,150 L740,150 L960,360 L1440,360 L1440,400 Z" fill="#2C4A3E"/>
+      <path d="M620,190 L640,150 L740,150 L760,190 L745,178 L725,192 L705,176 L685,190 L665,178 L645,192 L630,180 Z" fill="#F2EAD8"/>
+    </svg>
+
+    <div class="hero-grid">
+      <div class="hero-jp">山と海のあいだに</div>
+      <div>
+        <div class="hero-eyebrow reveal">portafolio · mmxxvi</div>
+        <h1 class="hero-name reveal delay-1">[ nombre ]<br><span class="italic">[ apellido ].</span></h1>
+        <div class="hero-sub reveal delay-2">
+          <p>[ una línea breve sobre quién eres, qué haces, dónde estudias ]. esta es tu carta de presentación digital.</p>
+          <div class="meta">
+            ciudad de méxico<br>
+            / lat. 19.4326° n
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="scroll-hint">
+      <span>scroll</span>
+      <div class="line"></div>
+    </div>
+  </section>
+
+  <!-- ============ ABOUT ============ -->
+  <section id="about" class="slide">
+    <div class="slide-num"><span>01</span>sobre mí</div>
+    <div class="about-grid">
+      <div class="about-left">
+        <div class="about-jp reveal">私について</div>
+        <h2 class="section-title reveal delay-1">una <span class="it">breve</span><br>introducción.</h2>
+        <p class="reveal delay-2">[ párrafo uno ] espacio para una descripción personal corta — quién eres, qué te interesa, qué estás construyendo ahora. dos o tres oraciones cuidadas, sin sonar a linkedin.</p>
+        <p class="reveal delay-3">[ párrafo dos ] aquí va lo que te apasiona fuera del código — música, libros, calle, fierro, lo que defina tu mood actual.</p>
+      </div>
+      <div class="about-right reveal delay-2">
+        <span class="corner tl">— retrato</span>
+        <span>[ imagen<br>placeholder ]</span>
+        <span class="corner br">cdmx · 2026</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PROJECTS ============ -->
+  <section id="projects" class="slide">
+    <div class="slide-num"><span>02</span>proyectos</div>
+    <div class="projects-header">
+      <h2 class="section-title">trabajos <span class="it">recientes.</span></h2>
+      <p>una selección de cosas que he construido — del código al fierro.</p>
+    </div>
+    <div class="projects-grid">
+      <article class="project-card">
+        <div class="pc-top"><span class="pc-num">— 01</span><span class="pc-tag">tag</span></div>
+        <div><div class="pc-title">[ proyecto uno ]</div><div class="pc-desc">descripción · stack</div></div>
+      </article>
+      <article class="project-card">
+        <div class="pc-top"><span class="pc-num">— 02</span><span class="pc-tag">tag</span></div>
+        <div><div class="pc-title">[ proyecto dos ]</div><div class="pc-desc">descripción · stack</div></div>
+      </article>
+      <article class="project-card">
+        <div class="pc-top"><span class="pc-num">— 03</span><span class="pc-tag">tag</span></div>
+        <div><div class="pc-title">[ proyecto tres ]</div><div class="pc-desc">descripción · stack</div></div>
+      </article>
+      <article class="project-card">
+        <div class="pc-top"><span class="pc-num">— 04</span><span class="pc-tag">tag</span></div>
+        <div><div class="pc-title">[ proyecto cuatro ]</div><div class="pc-desc">descripción · stack</div></div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============ STACK ============ -->
+  <section id="stack" class="slide">
+    <div class="slide-num"><span>03</span>stack</div>
+    <div class="stack-wrap">
+      <div class="stack-header">
+        <h2 class="section-title">herramientas <span class="it">de trabajo.</span></h2>
+        <p>lo que uso día a día — entre clases, proyectos y experimentos.</p>
+      </div>
+      <div class="stack-list">
+        <div class="stack-item"><small>lenguaje</small>[ tool 01 ]</div>
+        <div class="stack-item"><small>lenguaje</small>[ tool 02 ]</div>
+        <div class="stack-item"><small>data</small>[ tool 03 ]</div>
+        <div class="stack-item"><small>ml</small>[ tool 04 ]</div>
+        <div class="stack-item"><small>web</small>[ tool 05 ]</div>
+        <div class="stack-item"><small>embedded</small>[ tool 06 ]</div>
+        <div class="stack-item"><small>tooling</small>[ tool 07 ]</div>
+        <div class="stack-item"><small>otros</small>[ tool 08 ]</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CONTACT ============ -->
+  <section id="contact" class="slide">
+    <div class="petal p1"></div>
+    <div class="petal p2"></div>
+    <div class="petal p3"></div>
+    <div class="slide-num"><span>04</span>contacto</div>
+    <div class="contact-jp">こんにちは</div>
+    <h2 class="contact-title">hablemos<br><span class="it">un rato.</span></h2>
+    <a href="mailto:[ correo ]" class="contact-mail">[ tu correo aquí ] →</a>
+    <ul class="contact-links">
+      <li><a href="#">github</a></li>
+      <li><a href="#">linkedin</a></li>
+      <li><a href="#">instagram</a></li>
+      <li><a href="#">cv pdf</a></li>
+    </ul>
+    <div class="footer">
+      <span>© mmxxvi — boceto</span>
+      <span>diseñado con calma desde cdmx</span>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============ CHAT WIDGET ============ -->
+<div class="chat-widget" id="chatWidget">
+  <!-- Mascota flotante -->
+  <button class="mascot" id="mascotBtn" aria-label="Abrir chat">
+    <img src="mascot.png" alt="mascot" class="mascot-img">
+    <span class="mascot-pulse"></span>
+  </button>
+
+  <!-- Ventana de chat -->
+  <div class="chat-window" id="chatWindow">
+    <div class="chat-header">
+      <div class="chat-title">
+        <span class="chat-status" id="chatStatus"></span>
+        <span>tu dj personal</span>
+      </div>
+      <button class="chat-close" id="chatClose" aria-label="Cerrar">×</button>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+      <div class="msg msg-mascot">
+        miau · soy tu dj. dime qué quieres escuchar y te lo pongo.
+      </div>
+    </div>
+
+    <!-- Botón login Spotify (se muestra si no hay sesión) -->
+    <div class="chat-login" id="chatLogin">
+      <button class="spotify-btn" id="spotifyLogin">
+        conectar con spotify
+      </button>
+      <small>(necesitas premium)</small>
+    </div>
+
+    <!-- Input de chat (se muestra si hay sesión) -->
+    <div class="chat-input-wrap" id="chatInputWrap" hidden>
+      <input
+        type="text"
+        class="chat-input"
+        id="chatInput"
+        placeholder="ponme algo..."
+        autocomplete="off">
+    </div>
+  </div>
+</div>
+
+<script src="https://sdk.scdn.co/spotify-player.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html>
