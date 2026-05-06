@@ -155,13 +155,11 @@
 
 <!-- ============ CHAT WIDGET ============ -->
 <div class="chat-widget" id="chatWidget">
-  <!-- Mascota flotante -->
   <button class="mascot" id="mascotBtn" aria-label="Abrir chat">
     <img src="mascot.png" alt="mascot" class="mascot-img">
     <span class="mascot-pulse"></span>
   </button>
 
-  <!-- Ventana de chat -->
   <div class="chat-window" id="chatWindow">
     <div class="chat-header">
       <div class="chat-title">
@@ -177,7 +175,24 @@
       </div>
     </div>
 
-    <!-- Botón login Spotify (se muestra si no hay sesión) -->
+    <!-- Now Playing — controles de reproducción -->
+    <div class="now-playing" id="nowPlaying" style="display: none;">
+      <div class="np-progress">
+        <span class="np-time" id="npTimeCurrent">0:00</span>
+        <div class="np-bar" id="npBar">
+          <div class="np-bar-fill" id="npBarFill"></div>
+        </div>
+        <span class="np-time" id="npTimeTotal">0:00</span>
+      </div>
+      <div class="np-controls">
+        <button class="np-btn" id="npRepeat" aria-label="Repetir" title="Repetir"></button>
+        <button class="np-btn" id="npPrev" aria-label="Anterior" title="Anterior"></button>
+        <button class="np-btn np-btn-main" id="npPlayPause" aria-label="Play/Pause" title="Play/Pause"></button>
+        <button class="np-btn" id="npNext" aria-label="Siguiente" title="Siguiente"></button>
+        <button class="np-btn" id="npLike" aria-label="Me gusta" title="Me gusta"></button>
+      </div>
+    </div>
+
     <div class="chat-login" id="chatLogin">
       <button class="spotify-btn" id="spotifyLogin">
         conectar con spotify
@@ -185,8 +200,7 @@
       <small>(necesitas premium)</small>
     </div>
 
-    <!-- Input de chat (se muestra si hay sesión) -->
-    <div class="chat-input-wrap" id="chatInputWrap" hidden>
+    <div class="chat-input-wrap" id="chatInputWrap" style="display: none;">
       <input
         type="text"
         class="chat-input"
