@@ -2,18 +2,15 @@
 // CONFIG — Llena estos valores antes de subir
 // ============================================
 const CONFIG = {
-  // Tu Client ID de Spotify (dashboard developer.spotify.com)
-  SPOTIFY_CLIENT_ID: '9074170a641e46c8a361bc82bce924e5',
-
-  // URL de tu Worker en Cloudflare
+  SPOTIFY_CLIENT_ID: '<<RELLENA_CON_TU_CLIENT_ID>>',
   WORKER_URL: 'https://fdd-paco-proxy.francisco-c-s-08.workers.dev/',
-
-  // Redirect URI registrada en Spotify
   REDIRECT_URI: 'https://fr-c-s-08.github.io/FDD_Paco/callback.html',
-
-  // Permisos que pedimos a Spotify
   SCOPES: 'streaming user-read-email user-read-private user-modify-playback-state user-read-playback-state',
 };
+
+// Historial del chat (memoria conversacional)
+let chatHistory = [];
+const MAX_HISTORY = 10;
 
 // ============================================
 // REVEAL Y NAV (lógica del boceto original)
@@ -96,13 +93,55 @@ async function loginWithSpotify() {
   window.location = `https://accounts.spotify.com/authorize?${params}`;
 }
 
-function getAccessToken() {
+function getStoredToken() {
   const token = localStorage.getItem('spotify_access_token');
   const expiresAt = parseInt(localStorage.getItem('spotify_expires_at') || '0');
-  if (!token || Date.now() >= expiresAt) {
+  if (!token) return null;
+  return { token, expiresAt };
+}
+
+async function refreshAccessToken() {
+  const refreshToken = localStorage.getItem('spotify_refresh_token');
+  if (!refreshToken) return null;
+
+  try {
+    const res = await fetch('https://accounts.spotify.com/api/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_id: CONFIG.SPOTIFY_CLIENT_ID,
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+      }),
+    });
+
+    if (!res.ok) {
+      console.error('Refresh failed:', await res.text());
+      return null;
+    }
+
+    const data = await res.json();
+    localStorage.setItem('spotify_access_token', data.access_token);
+    localStorage.setItem('spotify_expires_at', Date.now() + data.expires_in * 1000);
+    if (data.refresh_token) {
+      localStorage.setItem('spotify_refresh_token', data.refresh_token);
+    }
+    return data.access_token;
+  } catch (e) {
+    console.error('Refresh error:', e);
     return null;
   }
-  return token;
+}
+
+async function ensureValidToken() {
+  const stored = getStoredToken();
+  if (!stored) return null;
+
+  const TWO_MIN = 2 * 60 * 1000;
+  if (Date.now() >= stored.expiresAt - TWO_MIN) {
+    return await refreshAccessToken();
+  }
+  return stored.token;
 }
 
 function logoutSpotify() {
@@ -118,13 +157,16 @@ function logoutSpotify() {
 let spotifyPlayer = null;
 let spotifyDeviceId = null;
 
-window.onSpotifyWebPlaybackSDKReady = () => {
-  const token = getAccessToken();
+window.onSpotifyWebPlaybackSDKReady = async () => {
+  const token = await ensureValidToken();
   if (!token) return;
 
   spotifyPlayer = new Spotify.Player({
     name: 'Paco DJ Web Player',
-    getOAuthToken: cb => cb(token),
+    getOAuthToken: async cb => {
+      const t = await ensureValidToken();
+      cb(t);
+    },
     volume: 0.7,
   });
 
@@ -133,9 +175,7 @@ window.onSpotifyWebPlaybackSDKReady = () => {
     setStatus('online');
   });
 
-  spotifyPlayer.addListener('not_ready', () => {
-    setStatus('error');
-  });
+  spotifyPlayer.addListener('not_ready', () => setStatus('error'));
 
   spotifyPlayer.addListener('initialization_error', ({ message }) => {
     console.error('Init error:', message);
@@ -148,7 +188,7 @@ window.onSpotifyWebPlaybackSDKReady = () => {
   });
 
   spotifyPlayer.addListener('account_error', ({ message }) => {
-    console.error('Account error (probablemente no es Premium):', message);
+    console.error('Account error:', message);
     addMessage('mascot', 'necesitas spotify premium para reproducir aquí 😿');
     setStatus('error');
   });
@@ -157,13 +197,12 @@ window.onSpotifyWebPlaybackSDKReady = () => {
 };
 
 async function searchTrack(track, artist) {
-  const token = getAccessToken();
+  const token = await ensureValidToken();
+  if (!token) throw new Error('No token');
 
-  // Helper: normalizar texto (sin acentos, lowercase)
   const normalize = s => s.toLowerCase()
     .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-  // 1. Búsqueda estricta con comillas
   const strictQuery = `track:"${track}" artist:"${artist}"`;
   let res = await fetch(
     `https://api.spotify.com/v1/search?q=${encodeURIComponent(strictQuery)}&type=track&limit=1`,
@@ -174,7 +213,6 @@ async function searchTrack(track, artist) {
     if (data.tracks?.items?.[0]) return data.tracks.items[0];
   }
 
-  // 2. Búsqueda libre, filtrando por artista coincidente
   const freeQuery = `${track} ${artist}`;
   res = await fetch(
     `https://api.spotify.com/v1/search?q=${encodeURIComponent(freeQuery)}&type=track&limit=10`,
@@ -184,7 +222,6 @@ async function searchTrack(track, artist) {
   const data = await res.json();
   const items = data.tracks?.items || [];
 
-  // Buscar el primer track cuyo artista incluya el nombre buscado
   const targetArtist = normalize(artist);
   const matching = items.find(t =>
     t.artists.some(a => {
@@ -193,12 +230,12 @@ async function searchTrack(track, artist) {
     })
   );
 
-  return matching || null;  // si no hay match de artista, mejor decir "no encontré"
+  return matching || null;
 }
 
 async function playTrack(trackUri) {
-  const token = getAccessToken();
-  if (!spotifyDeviceId) throw new Error('Player no listo todavía');
+  const token = await ensureValidToken();
+  if (!spotifyDeviceId) throw new Error('Player no listo');
 
   const res = await fetch(
     `https://api.spotify.com/v1/me/player/play?device_id=${spotifyDeviceId}`,
@@ -217,13 +254,13 @@ async function playTrack(trackUri) {
 }
 
 // ============================================
-// CHAT — LLAMADA AL WORKER (CLAUDE)
+// CHAT — LLAMADA AL WORKER (CON HISTORIAL)
 // ============================================
-async function askClaude(message) {
+async function askClaude(messages) {
   const res = await fetch(CONFIG.WORKER_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message }),
+    body: JSON.stringify({ messages }),
   });
   if (!res.ok) throw new Error(`Worker error: ${res.status}`);
   return res.json();
@@ -244,12 +281,9 @@ const chatStatus = document.getElementById('chatStatus');
 
 mascotBtn.addEventListener('click', () => {
   chatWindow.classList.toggle('open');
-  if (chatWindow.classList.contains('open')) {
-    chatInput.focus();
-  }
+  if (chatWindow.classList.contains('open')) chatInput.focus();
 });
 chatClose.addEventListener('click', () => chatWindow.classList.remove('open'));
-
 spotifyLoginBtn.addEventListener('click', () => loginWithSpotify());
 
 function setStatus(state) {
@@ -281,12 +315,13 @@ function addMessage(sender, text, isLoading = false) {
 chatInput.addEventListener('keydown', async (e) => {
   if (e.key !== 'Enter' || !chatInput.value.trim()) return;
 
-  const message = chatInput.value.trim();
+  const userMessage = chatInput.value.trim();
   chatInput.value = '';
-  addMessage('user', message);
+  addMessage('user', userMessage);
 
-  if (!getAccessToken()) {
-    addMessage('mascot', 'primero conéctate con spotify ✨');
+  const token = await ensureValidToken();
+  if (!token) {
+    addMessage('mascot', 'la sesión expiró, conéctate de nuevo ✨');
     showLoginUI();
     return;
   }
@@ -296,23 +331,32 @@ chatInput.addEventListener('keydown', async (e) => {
     return;
   }
 
-  // Estado "pensando"
+  chatHistory.push({ role: 'user', content: userMessage });
+  if (chatHistory.length > MAX_HISTORY) {
+    chatHistory = chatHistory.slice(-MAX_HISTORY);
+  }
+
   mascotBtn.classList.add('thinking');
   const loadingMsg = addMessage('mascot', 'pensando en algo bueno...', true);
 
   try {
-    const recommendation = await askClaude(message);
+    const recommendation = await askClaude(chatHistory);
 
     if (!recommendation.track || !recommendation.artist) {
       throw new Error('Respuesta inesperada de Claude');
     }
+
+    chatHistory.push({
+      role: 'assistant',
+      content: JSON.stringify(recommendation),
+    });
 
     loadingMsg.textContent = 'buscando en spotify...';
     const track = await searchTrack(recommendation.track, recommendation.artist);
 
     if (!track) {
       loadingMsg.classList.remove('loading');
-      loadingMsg.innerHTML = `no encontré "${recommendation.track}" de ${recommendation.artist} 😿<br><small>${recommendation.reason || ''}</small>`;
+      loadingMsg.innerHTML = `no encontré "${recommendation.track}" de ${recommendation.artist} en spotify 😿<br><small>${recommendation.reason || ''}</small>`;
       return;
     }
 
@@ -337,8 +381,11 @@ chatInput.addEventListener('keydown', async (e) => {
 // ============================================
 // INICIO
 // ============================================
-if (getAccessToken()) {
-  showChatUI();
-} else {
-  showLoginUI();
-}
+(async () => {
+  const token = await ensureValidToken();
+  if (token) {
+    showChatUI();
+  } else {
+    showLoginUI();
+  }
+})();
