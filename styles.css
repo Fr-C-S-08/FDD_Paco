@@ -21,7 +21,6 @@ body {
   font-weight: 400;
 }
 
-/* paper grain */
 body::before {
   content: '';
   position: fixed;
@@ -404,7 +403,6 @@ section.slide {
   z-index: 250;
 }
 
-/* Mascota */
 .mascot {
   width: 72px; height: 72px;
   border-radius: 50%;
@@ -428,11 +426,9 @@ section.slide {
   object-fit: cover;
   object-position: center 25%;
   display: block;
-  /* Mezcla el fondo oscuro de la imagen con el cream */
   mix-blend-mode: multiply;
 }
 
-/* Pulso cuando está pensando */
 .mascot-pulse {
   position: absolute;
   inset: -4px;
@@ -449,7 +445,6 @@ section.slide {
   100% { transform: scale(1.25); opacity: 0; }
 }
 
-/* Ventana de chat */
 .chat-window {
   position: absolute;
   bottom: 92px;
@@ -566,6 +561,81 @@ section.slide {
   border-bottom: 1px solid var(--sun);
 }
 
+/* === NOW PLAYING (controles de reproducción) === */
+.now-playing {
+  padding: 14px 16px 12px;
+  border-top: 1px solid rgba(28,34,48,0.15);
+  background: var(--cream-2);
+}
+.np-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-variant-numeric: tabular-nums;
+}
+.np-time {
+  font-size: 10px;
+  color: var(--ink-soft);
+  min-width: 28px;
+}
+.np-time:last-child { text-align: right; }
+.np-bar {
+  flex: 1;
+  height: 3px;
+  background: rgba(28,34,48,0.18);
+  border-radius: 2px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.np-bar:hover { height: 5px; }
+.np-bar-fill {
+  height: 100%;
+  background: var(--ink);
+  border-radius: 2px;
+  width: 0%;
+  transition: width 0.5s linear;
+}
+.np-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+}
+.np-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: var(--ink-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s, transform 0.15s;
+  border-radius: 50%;
+}
+.np-btn:hover {
+  color: var(--ink);
+  transform: scale(1.1);
+}
+.np-btn.active {
+  color: var(--sun);
+}
+.np-btn-main {
+  width: 36px;
+  height: 36px;
+  background: var(--ink);
+  color: var(--cream);
+}
+.np-btn-main:hover {
+  background: var(--sun-deep);
+  color: var(--cream);
+  transform: scale(1.05);
+}
+.np-btn svg { display: block; }
+
+/* === LOGIN === */
 .chat-login {
   padding: 16px;
   border-top: 1px solid rgba(28,34,48,0.15);
