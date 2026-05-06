@@ -2,7 +2,7 @@
 // CONFIG
 // ============================================
 const CONFIG = {
-  SPOTIFY_CLIENT_ID: '<<RELLENA_CON_TU_CLIENT_ID>>',
+  SPOTIFY_CLIENT_ID: '9074170a641e46c8a361bc82bce924e5',
   WORKER_URL: 'https://fdd-paco-proxy.francisco-c-s-08.workers.dev/',
   REDIRECT_URI: 'https://fr-c-s-08.github.io/FDD_Paco/callback.html',
   SCOPES: 'streaming user-read-email user-read-private user-modify-playback-state user-read-playback-state',
