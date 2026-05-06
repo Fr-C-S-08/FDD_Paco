@@ -158,23 +158,42 @@ window.onSpotifyWebPlaybackSDKReady = () => {
 
 async function searchTrack(track, artist) {
   const token = getAccessToken();
-  // Búsqueda flexible — primero intenta estricta, si falla usa libre
-  const tryQueries = [
-    `${track} ${artist}`,                    // libre (más permisiva)
-    `track:"${track}" artist:"${artist}"`,   // estricta con comillas
-  ];
 
-  for (const q of tryQueries) {
-    const res = await fetch(
-      `https://api.spotify.com/v1/search?q=${encodeURIComponent(q)}&type=track&limit=5`,
-      { headers: { 'Authorization': `Bearer ${token}` } }
-    );
-    if (!res.ok) continue;
+  // Helper: normalizar texto (sin acentos, lowercase)
+  const normalize = s => s.toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+  // 1. Búsqueda estricta con comillas
+  const strictQuery = `track:"${track}" artist:"${artist}"`;
+  let res = await fetch(
+    `https://api.spotify.com/v1/search?q=${encodeURIComponent(strictQuery)}&type=track&limit=1`,
+    { headers: { 'Authorization': `Bearer ${token}` } }
+  );
+  if (res.ok) {
     const data = await res.json();
-    const items = data.tracks?.items || [];
-    if (items.length > 0) return items[0];
+    if (data.tracks?.items?.[0]) return data.tracks.items[0];
   }
-  return null;
+
+  // 2. Búsqueda libre, filtrando por artista coincidente
+  const freeQuery = `${track} ${artist}`;
+  res = await fetch(
+    `https://api.spotify.com/v1/search?q=${encodeURIComponent(freeQuery)}&type=track&limit=10`,
+    { headers: { 'Authorization': `Bearer ${token}` } }
+  );
+  if (!res.ok) return null;
+  const data = await res.json();
+  const items = data.tracks?.items || [];
+
+  // Buscar el primer track cuyo artista incluya el nombre buscado
+  const targetArtist = normalize(artist);
+  const matching = items.find(t =>
+    t.artists.some(a => {
+      const normalA = normalize(a.name);
+      return normalA.includes(targetArtist) || targetArtist.includes(normalA);
+    })
+  );
+
+  return matching || null;  // si no hay match de artista, mejor decir "no encontré"
 }
 
 async function playTrack(trackUri) {
