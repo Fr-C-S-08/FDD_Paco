@@ -158,13 +158,23 @@ window.onSpotifyWebPlaybackSDKReady = () => {
 
 async function searchTrack(track, artist) {
   const token = getAccessToken();
-  const query = encodeURIComponent(`track:${track} artist:${artist}`);
-  const res = await fetch(`https://api.spotify.com/v1/search?q=${query}&type=track&limit=1`, {
-    headers: { 'Authorization': `Bearer ${token}` },
-  });
-  if (!res.ok) throw new Error('Spotify search failed');
-  const data = await res.json();
-  return data.tracks?.items?.[0] || null;
+  // Búsqueda flexible — primero intenta estricta, si falla usa libre
+  const tryQueries = [
+    `${track} ${artist}`,                    // libre (más permisiva)
+    `track:"${track}" artist:"${artist}"`,   // estricta con comillas
+  ];
+
+  for (const q of tryQueries) {
+    const res = await fetch(
+      `https://api.spotify.com/v1/search?q=${encodeURIComponent(q)}&type=track&limit=5`,
+      { headers: { 'Authorization': `Bearer ${token}` } }
+    );
+    if (!res.ok) continue;
+    const data = await res.json();
+    const items = data.tracks?.items || [];
+    if (items.length > 0) return items[0];
+  }
+  return null;
 }
 
 async function playTrack(trackUri) {
