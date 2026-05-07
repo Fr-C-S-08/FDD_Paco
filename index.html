@@ -133,7 +133,7 @@
         <div class="carousel-header">
           <button class="carousel-arrow" id="prevGame" aria-label="Anterior">←</button>
           <div class="carousel-info">
-            <span class="carousel-counter"><span id="carouselIdx">01</span> / 03</span>
+            <span class="carousel-counter"><span id="carouselIdx">01</span> / 04</span>
             <span class="carousel-name" id="carouselName">Snake</span>
           </div>
           <button class="carousel-arrow" id="nextGame" aria-label="Siguiente">→</button>
@@ -188,6 +188,23 @@
                   <div class="overlay-content">
                     <div class="overlay-text" id="invadersOverlayText">A/D para mover. Espacio para disparar.</div>
                     <button class="play-btn" id="invadersPlayBtn">play →</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ===== VECTOR FIELD ROBOT ===== -->
+            <div class="game-slide" data-game="robot">
+              <div class="game-stats">
+                <div class="game-stat"><small>score</small><span id="robotScore">0</span></div>
+                <div class="game-stat"><small>best</small><span id="robotBest">0</span></div>
+              </div>
+              <div class="canvas-wrap">
+                <canvas id="robotCanvas" width="500" height="500"></canvas>
+                <div class="game-overlay" id="robotOverlay">
+                  <div class="overlay-content">
+                    <div class="overlay-text" id="robotOverlayText">Click para guiar el robot. Recoge monedas, esquiva bombas. 45s.</div>
+                    <button class="play-btn" id="robotPlayBtn">play →</button>
                   </div>
                 </div>
               </div>
