@@ -17,7 +17,7 @@
   <ul>
     <li><a href="#about">Sobre mi</a></li>
     <li><a href="#projects">Proyectos</a></li>
-    <li><a href="#stack">Jueguito</a></li>
+    <li><a href="#juego">Jueguito</a></li>
     <li><a href="#contact">Contacto</a></li>
   </ul>
 </nav>
@@ -27,7 +27,7 @@
   <a href="#hero" data-target="hero" class="active"><span>inicio</span></a>
   <a href="#about" data-target="about"><span>sobre mí</span></a>
   <a href="#projects" data-target="projects"><span>proyectos</span></a>
-  <a href="#stack" data-target="stack"><span>stack</span></a>
+  <a href="#juego" data-target="juego"><span>jueguito</span></a>
   <a href="#contact" data-target="contact"><span>contacto</span></a>
 </aside>
 
@@ -120,23 +120,28 @@
     </div>
   </section>
 
-  <!-- ============ STACK ============ -->
-  <section id="stack" class="slide">
-    <div class="slide-num"><span>03</span>stack</div>
-    <div class="stack-wrap">
-      <div class="stack-header">
-        <h2 class="section-title">herramientas <span class="it">de trabajo.</span></h2>
-        <p>lo que uso día a día — entre clases, proyectos y experimentos.</p>
+  <!-- ============ JUEGO ============ -->
+  <section id="juego" class="slide">
+    <div class="slide-num"><span>03</span>Jueguito</div>
+    <div class="game-wrap">
+      <div class="game-header">
+        <h2 class="section-title">Una pausa <span class="it">entre slides.</span></h2>
+        <p>Snake clásico, paleta de la casa. Flechas o WASD en compu, swipe en celular.</p>
       </div>
-      <div class="stack-list">
-        <div class="stack-item"><small>lenguaje</small>[ tool 01 ]</div>
-        <div class="stack-item"><small>lenguaje</small>[ tool 02 ]</div>
-        <div class="stack-item"><small>data</small>[ tool 03 ]</div>
-        <div class="stack-item"><small>ml</small>[ tool 04 ]</div>
-        <div class="stack-item"><small>web</small>[ tool 05 ]</div>
-        <div class="stack-item"><small>embedded</small>[ tool 06 ]</div>
-        <div class="stack-item"><small>tooling</small>[ tool 07 ]</div>
-        <div class="stack-item"><small>otros</small>[ tool 08 ]</div>
+      <div class="game-stage">
+        <div class="game-meta">
+          <div class="game-stat"><small>score</small><span id="score">0</span></div>
+          <div class="game-stat"><small>best</small><span id="best">0</span></div>
+        </div>
+        <div class="canvas-wrap">
+          <canvas id="snake" width="500" height="500"></canvas>
+          <div class="game-overlay" id="overlay">
+            <div class="overlay-content">
+              <div id="overlay-text">Presiona play para empezar</div>
+              <button id="play-btn" class="play-btn">play →</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -224,6 +229,162 @@
 
 <script src="https://sdk.scdn.co/spotify-player.js"></script>
 <script src="script.js"></script>
+
+<!-- ============ SNAKE GAME ============ -->
+<script>
+(function() {
+  const canvas = document.getElementById('snake');
+  if (!canvas) return;
+
+  const ctx = canvas.getContext('2d');
+  const SIZE = canvas.width;
+  const GRID = 20;
+  const CELL = SIZE / GRID;
+
+  const COLORS = {
+    bg:    '#F2EAD8',
+    snake: '#2C4A3E',
+    head:  '#1C2230',
+    food:  '#C8392E'
+  };
+
+  const scoreEl   = document.getElementById('score');
+  const bestEl    = document.getElementById('best');
+  const overlay   = document.getElementById('overlay');
+  const overlayTx = document.getElementById('overlay-text');
+  const playBtn   = document.getElementById('play-btn');
+
+  let snake, dir, nextDir, food, score, best, alive, speed, intervalId;
+
+  best = parseInt(localStorage.getItem('snakeBest') || '0', 10);
+  bestEl.textContent = best;
+
+  function reset() {
+    snake = [{x: 10, y: 10}, {x: 9, y: 10}, {x: 8, y: 10}];
+    dir = {x: 1, y: 0};
+    nextDir = {x: 1, y: 0};
+    score = 0;
+    speed = 130;
+    placeFood();
+    alive = true;
+    scoreEl.textContent = score;
+  }
+
+  function placeFood() {
+    while (true) {
+      const x = Math.floor(Math.random() * GRID);
+      const y = Math.floor(Math.random() * GRID);
+      if (!snake.some(s => s.x === x && s.y === y)) {
+        food = {x, y};
+        return;
+      }
+    }
+  }
+
+  function step() {
+    if (!alive) return;
+    dir = nextDir;
+    const head = {x: snake[0].x + dir.x, y: snake[0].y + dir.y};
+
+    if (head.x < 0 || head.x >= GRID || head.y < 0 || head.y >= GRID) {
+      die(); return;
+    }
+    if (snake.some(s => s.x === head.x && s.y === head.y)) {
+      die(); return;
+    }
+
+    snake.unshift(head);
+
+    if (head.x === food.x && head.y === food.y) {
+      score += 10;
+      scoreEl.textContent = score;
+      placeFood();
+      if (speed > 65) {
+        speed -= 2;
+        clearInterval(intervalId);
+        intervalId = setInterval(step, speed);
+      }
+    } else {
+      snake.pop();
+    }
+
+    draw();
+  }
+
+  function draw() {
+    ctx.fillStyle = COLORS.bg;
+    ctx.fillRect(0, 0, SIZE, SIZE);
+
+    ctx.fillStyle = COLORS.food;
+    ctx.beginPath();
+    ctx.arc(food.x * CELL + CELL/2, food.y * CELL + CELL/2, CELL/2 - 3, 0, Math.PI * 2);
+    ctx.fill();
+
+    snake.forEach((s, i) => {
+      ctx.fillStyle = i === 0 ? COLORS.head : COLORS.snake;
+      ctx.fillRect(s.x * CELL + 1, s.y * CELL + 1, CELL - 2, CELL - 2);
+    });
+  }
+
+  function die() {
+    alive = false;
+    clearInterval(intervalId);
+    if (score > best) {
+      best = score;
+      localStorage.setItem('snakeBest', best);
+      bestEl.textContent = best;
+    }
+    overlayTx.textContent = score > 0 ? 'Game over · ' + score + ' pts' : 'Game over';
+    playBtn.textContent = 'jugar otra vez →';
+    overlay.classList.remove('hidden');
+  }
+
+  function start() {
+    reset();
+    overlay.classList.add('hidden');
+    intervalId = setInterval(step, speed);
+    draw();
+  }
+
+  // Keyboard controls
+  document.addEventListener('keydown', (e) => {
+    if (!alive) return;
+    const key = e.key.toLowerCase();
+    if ((key === 'arrowup' || key === 'w') && dir.y === 0) nextDir = {x: 0, y: -1};
+    else if ((key === 'arrowdown' || key === 's') && dir.y === 0) nextDir = {x: 0, y: 1};
+    else if ((key === 'arrowleft' || key === 'a') && dir.x === 0) nextDir = {x: -1, y: 0};
+    else if ((key === 'arrowright' || key === 'd') && dir.x === 0) nextDir = {x: 1, y: 0};
+    if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) e.preventDefault();
+  });
+
+  // Touch swipe controls
+  let touchX = 0, touchY = 0;
+  canvas.addEventListener('touchstart', (e) => {
+    const t = e.touches[0];
+    touchX = t.clientX; touchY = t.clientY;
+  }, {passive: true});
+
+  canvas.addEventListener('touchend', (e) => {
+    if (!alive) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - touchX;
+    const dy = t.clientY - touchY;
+    if (Math.abs(dx) > Math.abs(dy)) {
+      if (dx > 30 && dir.x === 0) nextDir = {x: 1, y: 0};
+      else if (dx < -30 && dir.x === 0) nextDir = {x: -1, y: 0};
+    } else {
+      if (dy > 30 && dir.y === 0) nextDir = {x: 0, y: 1};
+      else if (dy < -30 && dir.y === 0) nextDir = {x: 0, y: -1};
+    }
+  }, {passive: true});
+
+  playBtn.addEventListener('click', start);
+
+  // Initial state
+  reset();
+  draw();
+})();
+</script>
 
 </body>
 </html>
