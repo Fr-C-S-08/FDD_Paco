@@ -306,36 +306,73 @@ section.slide {
 }
 .pc-desc { font-size: 13px; color: var(--ink-soft); }
 
-/* === STACK === */
-#stack { flex-direction: column; align-items: stretch; }
-.stack-header {
-  display: flex; justify-content: space-between;
-  align-items: flex-end; margin-bottom: 6vh;
+/* === JUEGO === */
+#juego { flex-direction: column; align-items: stretch; }
+.game-wrap {
+  display: flex; flex-direction: column;
+  gap: 4vh; flex: 1;
 }
-.stack-header p {
+.game-header { max-width: 600px; }
+.game-header p {
   font-family: 'Fraunces', serif; font-style: italic;
-  font-size: 14px; color: var(--ink-soft); max-width: 280px;
+  font-size: 14px; color: var(--ink-soft); max-width: 380px;
+  margin-top: 8px;
 }
-.stack-list {
-  display: grid; grid-template-columns: repeat(4, 1fr);
-  border-top: 1px solid rgba(28,34,48,0.15);
-  border-left: 1px solid rgba(28,34,48,0.15);
+.game-stage {
+  align-self: center;
+  background: var(--cream-2);
+  border: 1px solid rgba(28,34,48,0.15);
+  padding: 24px;
+  width: 100%;
+  max-width: 548px;
 }
-.stack-item {
-  padding: 32px 20px;
-  border-right: 1px solid rgba(28,34,48,0.15);
-  border-bottom: 1px solid rgba(28,34,48,0.15);
+.game-meta {
+  display: flex; justify-content: space-between;
+  margin-bottom: 16px; align-items: baseline;
+}
+.game-stat {
   font-family: 'Fraunces', serif; font-weight: 300;
-  font-size: 22px; letter-spacing: -0.01em;
-  display: flex; flex-direction: column; gap: 12px;
-  transition: background 0.3s;
+  font-size: 28px; letter-spacing: -0.02em;
+  display: flex; align-items: baseline; gap: 12px;
 }
-.stack-item:hover { background: var(--cream-2); }
-.stack-item small {
+.game-stat small {
   font-family: 'Manrope', sans-serif;
   font-size: 10px; letter-spacing: 0.2em;
   text-transform: uppercase; color: var(--sun);
 }
+.canvas-wrap {
+  position: relative;
+  width: 100%;
+}
+#snake {
+  display: block;
+  width: 100%; height: auto;
+  background: var(--cream);
+  border: 1px solid rgba(28,34,48,0.2);
+  touch-action: none;
+}
+.game-overlay {
+  position: absolute; inset: 0;
+  background: rgba(242, 234, 216, 0.94);
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity 0.3s;
+}
+.game-overlay.hidden { opacity: 0; pointer-events: none; }
+.overlay-content { text-align: center; padding: 0 20px; }
+#overlay-text {
+  font-family: 'Fraunces', serif; font-style: italic;
+  font-size: clamp(20px, 3vw, 28px);
+  color: var(--ink); margin-bottom: 24px;
+}
+.play-btn {
+  font-family: 'Manrope', sans-serif;
+  font-size: 11px; letter-spacing: 0.25em;
+  text-transform: uppercase;
+  background: var(--ink); color: var(--cream);
+  border: none; padding: 14px 32px; cursor: pointer;
+  transition: all 0.2s;
+}
+.play-btn:hover { background: var(--sun); }
 
 /* === CONTACT === */
 #contact {
