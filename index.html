@@ -17,7 +17,7 @@
   <ul>
     <li><a href="#about">Sobre mi</a></li>
     <li><a href="#projects">Proyectos</a></li>
-    <li><a href="#juego">Jueguitos</a></li>
+    <li><a href="#juego">Jueguito</a></li>
     <li><a href="#contact">Contacto</a></li>
   </ul>
 </nav>
@@ -75,7 +75,8 @@
       </div>
       <div class="about-right reveal delay-2">
         <span class="corner tl">— retrato</span>
-        <span>[ imagen<br>placeholder ]</span>
+        <img src="retrato.jpg" alt="Francisco Cervantes" class="retrato-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+        <span class="retrato-fallback">[ sube retrato.jpg ]</span>
         <span class="corner br">cdmx · 2026</span>
       </div>
     </div>
@@ -89,28 +90,28 @@
       <p>Una selección de proyectos que he desarrollado</p>
     </div>
     <div class="projects-grid">
-      <a class="project-card" href="#" target="_blank" rel="noopener">
+      <a class="project-card" href="#" target="_blank" rel="noopener" style="--bg-image: url('bg-vfields.jpg')">
         <div class="pc-top"><span class="pc-num">— 01</span><span class="pc-tag">robotics</span></div>
         <div>
           <div class="pc-title">Path following · Vector fields</div>
           <div class="pc-desc">Control de seguimiento para robot diferencial usando campos de velocidad. Incluye teoría, simulación animada en matlab y deployment en c sobre una raspberry pi. · c · matlab · raspi</div>
         </div>
       </a>
-      <a class="project-card" href="https://github.com/Fr-C-S-08/Astroimg-Library" target="_blank" rel="noopener">
+      <a class="project-card" href="https://github.com/Fr-C-S-08/Astroimg-Library" target="_blank" rel="noopener" style="--bg-image: url('bg-astroimg.jpg')">
         <div class="pc-top"><span class="pc-num">— 02</span><span class="pc-tag">python · pypi</span></div>
         <div>
           <div class="pc-title">Astroimg-library</div>
           <div class="pc-desc">Librería para análisis de imágenes astronómicas. Detección de estrellas por consenso entre kernels, fotometría de apertura y crossmatch con gaia dr3. · astropy · photutils</div>
         </div>
       </a>
-      <a class="project-card" href="https://github.com/Fr-C-S-08/Proyecto_ALPHA" target="_blank" rel="noopener">
+      <a class="project-card" href="https://github.com/Fr-C-S-08/Proyecto_ALPHA" target="_blank" rel="noopener" style="--bg-image: url('bg-alpha.jpg')">
         <div class="pc-top"><span class="pc-num">— 03</span><span class="pc-tag">distributed</span></div>
         <div>
           <div class="pc-title">Proyecto alpha</div>
           <div class="pc-desc">Juego multijugador distribuido con arquitectura híbrida tcp sockets + JMS pub/sub. Suite de pruebas de estrés escalando de 50 a 500 clientes concurrentes. · java · activemq</div>
         </div>
       </a>
-      <a class="project-card" href="https://github.com/Pac080704/CodeKeep" target="_blank" rel="noopener">
+      <a class="project-card" href="https://github.com/Pac080704/CodeKeep" target="_blank" rel="noopener" style="--bg-image: url('bg-codekeep.jpg')">
         <div class="pc-top"><span class="pc-num">— 04</span><span class="pc-tag">web</span></div>
         <div>
           <div class="pc-title">Codekeep</div>
@@ -122,11 +123,11 @@
 
   <!-- ============ JUEGO ============ -->
   <section id="juego" class="slide">
-    <div class="slide-num"><span>03</span>Jueguitos</div>
+    <div class="slide-num"><span>03</span>Jueguito</div>
     <div class="game-wrap">
       <div class="game-header">
-        <h2 class="section-title"><span class="it">Jueguitos chill.</span></h2>
-        <p> Usa las flechas para cambiar de juego.</p>
+        <h2 class="section-title">Una pausa <span class="it">entre slides.</span></h2>
+        <p>Tres clásicos. Usa las flechas para cambiar de juego.</p>
       </div>
 
       <div class="games-carousel">
@@ -222,18 +223,19 @@
     <div class="petal p1"></div>
     <div class="petal p2"></div>
     <div class="petal p3"></div>
-    <div class="slide-num"><span>04</span>Contacto</div>
+    <div class="slide-num"><span>04</span>contacto</div>
     <div class="contact-jp">こんにちは</div>
-    <h2 class="contact-title">Hasta aquí mi reporte<br><span class="it">Joaquín.</span></h2>
-    <a href="mailto:[ correo ]" class="contact-mail"> fcerva15@itam.mx →</a>
+    <h2 class="contact-title">hablemos<br><span class="it">un rato.</span></h2>
+    <a href="mailto:[ correo ]" class="contact-mail">[ tu correo aquí ] →</a>
     <ul class="contact-links">
-      <li><a href="https://github.com/Fr-C-S-08">github</a></li>
+      <li><a href="#">github</a></li>
       <li><a href="#">linkedin</a></li>
       <li><a href="#">instagram</a></li>
       <li><a href="#">cv pdf</a></li>
     </ul>
     <div class="footer">
-      <span>paquito-pagina</span>
+      <span>© mmxxvi — boceto</span>
+      <span>diseñado con calma desde cdmx</span>
     </div>
   </section>
 
