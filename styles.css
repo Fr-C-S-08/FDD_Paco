@@ -315,20 +315,65 @@ section.slide {
 .game-header { max-width: 600px; }
 .game-header p {
   font-family: 'Fraunces', serif; font-style: italic;
-  font-size: 14px; color: var(--ink-soft); max-width: 380px;
+  font-size: 14px; color: var(--ink-soft); max-width: 480px;
   margin-top: 8px;
 }
-.game-stage {
+
+.games-carousel {
   align-self: center;
-  background: var(--cream-2);
-  border: 1px solid rgba(28,34,48,0.15);
-  padding: 24px;
   width: 100%;
   max-width: 548px;
 }
-.game-meta {
-  display: flex; justify-content: space-between;
-  margin-bottom: 16px; align-items: baseline;
+
+.carousel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px;
+}
+.carousel-arrow {
+  background: transparent; border: 1px solid rgba(28,34,48,0.2);
+  width: 44px; height: 44px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 18px;
+  color: var(--ink); cursor: pointer;
+  transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center;
+}
+.carousel-arrow:hover {
+  background: var(--ink); color: var(--cream);
+}
+.carousel-info {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  text-align: center;
+}
+.carousel-counter {
+  font-family: 'Manrope', sans-serif;
+  font-size: 10px; letter-spacing: 0.25em;
+  text-transform: uppercase; color: var(--sun);
+}
+.carousel-name {
+  font-family: 'Fraunces', serif; font-weight: 300;
+  font-size: 22px; letter-spacing: -0.01em;
+}
+
+.carousel-viewport {
+  background: var(--cream-2);
+  border: 1px solid rgba(28,34,48,0.15);
+  padding: 24px;
+  overflow: hidden;
+}
+.carousel-track {
+  display: flex;
+  transition: transform 0.45s cubic-bezier(.2,.8,.2,1);
+}
+.game-slide {
+  flex: 0 0 100%;
+  min-width: 100%;
+  box-sizing: border-box;
+}
+
+.game-stats {
+  display: flex; gap: 32px;
+  margin-bottom: 16px;
 }
 .game-stat {
   font-family: 'Fraunces', serif; font-weight: 300;
@@ -344,7 +389,7 @@ section.slide {
   position: relative;
   width: 100%;
 }
-#snake {
+.canvas-wrap canvas {
   display: block;
   width: 100%; height: auto;
   background: var(--cream);
@@ -359,9 +404,9 @@ section.slide {
 }
 .game-overlay.hidden { opacity: 0; pointer-events: none; }
 .overlay-content { text-align: center; padding: 0 20px; }
-#overlay-text {
+.overlay-text {
   font-family: 'Fraunces', serif; font-style: italic;
-  font-size: clamp(20px, 3vw, 28px);
+  font-size: clamp(18px, 2.5vw, 24px);
   color: var(--ink); margin-bottom: 24px;
 }
 .play-btn {
