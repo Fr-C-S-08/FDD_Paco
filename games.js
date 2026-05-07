@@ -23,7 +23,8 @@
   const games = [
     { id: 'snake',    name: 'Snake' },
     { id: 'pong',     name: 'Pong' },
-    { id: 'invaders', name: 'Space Invaders' }
+    { id: 'invaders', name: 'Space Invaders' },
+    { id: 'robot',    name: 'Vector Field' }
   ];
   let currentIdx = 0;
 
@@ -679,6 +680,307 @@
 
     reset();
     draw();
+
+    return { start, stop };
+  })();
+
+  // ============================================
+  // ============== VECTOR FIELD ROBOT ==========
+  // ============================================
+  gameInstances.robot = (function() {
+    const canvas = document.getElementById('robotCanvas');
+    if (!canvas) return null;
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width;
+    const H = canvas.height;
+
+    const scoreEl   = document.getElementById('robotScore');
+    const bestEl    = document.getElementById('robotBest');
+    const overlay   = document.getElementById('robotOverlay');
+    const overlayTx = document.getElementById('robotOverlayText');
+    const playBtn   = document.getElementById('robotPlayBtn');
+
+    // Constantes (mismas ideas que su control en C)
+    const ROBOT_R   = 10;       // radio visual del robot
+    const ROBOT_V   = 2.2;      // velocidad lineal constante (px/frame) - igual que VF_U_REF
+    const K_THETA   = 0.10;     // ganancia P de orientación - igual que VF_K_THETA
+    const REACH_R   = 14;       // distancia para considerar target alcanzado
+    const COIN_R    = 8;
+    const BOMB_R    = 14;
+    const DURATION  = 45000;    // 45s por ronda
+    const BOMB_DELAY = 6000;    // 6s antes de que aparezcan bombas
+    const BOMB_INTERVAL = 2800; // ms entre spawns de bomba
+    const BOMB_TTL = 8000;      // duración de cada bomba
+    const TRAIL_MAX = 40;
+
+    let robot, target, coins, bombs, score, best, alive, startTime, lastBombSpawn, intervalId, trail;
+
+    best = parseInt(localStorage.getItem('robotBest') || '0', 10);
+    bestEl.textContent = best;
+
+    function reset() {
+      robot = { x: W/2, y: H/2, theta: 0 };
+      target = null;
+      coins = [];
+      bombs = [];
+      score = 0;
+      alive = false;
+      trail = [];
+      startTime = Date.now();
+      lastBombSpawn = startTime;
+      spawnCoin();
+      scoreEl.textContent = 0;
+    }
+
+    function spawnCoin() {
+      const margin = 40;
+      coins.push({
+        x: margin + Math.random() * (W - 2*margin),
+        y: margin + Math.random() * (H - 2*margin),
+        alive: true
+      });
+    }
+
+    function spawnBomb() {
+      const margin = 50;
+      const x = margin + Math.random() * (W - 2*margin);
+      const y = margin + Math.random() * (H - 2*margin);
+      // No spawnear muy cerca del robot
+      if (Math.hypot(x - robot.x, y - robot.y) < 90) return;
+      bombs.push({ x, y, alive: true, born: Date.now() });
+    }
+
+    function wrapToPi(a) {
+      return Math.atan2(Math.sin(a), Math.cos(a));
+    }
+
+    function step() {
+      if (!alive) return;
+      const now = Date.now();
+      const elapsed = now - startTime;
+
+      if (elapsed >= DURATION) {
+        finish('Tiempo · ' + score + ' coins');
+        return;
+      }
+
+      // Ley de control: vector field hacia target (si hay)
+      if (target) {
+        const dx = target.x - robot.x;
+        const dy = target.y - robot.y;
+        const dist = Math.hypot(dx, dy);
+
+        if (dist < REACH_R) {
+          target = null;
+        } else {
+          // theta_d = atan2(Vy, Vx)
+          const theta_d = Math.atan2(dy, dx);
+          // e_theta = wrapToPi(theta_d - psi)
+          const e_theta = wrapToPi(theta_d - robot.theta);
+          // omega = K_THETA * e_theta (control P)
+          robot.theta += K_THETA * e_theta;
+          // Cinemática del uniciclo
+          robot.x += ROBOT_V * Math.cos(robot.theta);
+          robot.y += ROBOT_V * Math.sin(robot.theta);
+        }
+      } else {
+        // Sin target: deriva lenta
+        robot.x += 0.3 * ROBOT_V * Math.cos(robot.theta);
+        robot.y += 0.3 * ROBOT_V * Math.sin(robot.theta);
+      }
+
+      // Rebote suave en bordes (no game over por pared)
+      if (robot.x < ROBOT_R) {
+        robot.x = ROBOT_R;
+        robot.theta = Math.PI - robot.theta;
+        target = null;
+      }
+      if (robot.x > W - ROBOT_R) {
+        robot.x = W - ROBOT_R;
+        robot.theta = Math.PI - robot.theta;
+        target = null;
+      }
+      if (robot.y < ROBOT_R) {
+        robot.y = ROBOT_R;
+        robot.theta = -robot.theta;
+        target = null;
+      }
+      if (robot.y > H - ROBOT_R) {
+        robot.y = H - ROBOT_R;
+        robot.theta = -robot.theta;
+        target = null;
+      }
+
+      // Trail
+      trail.push({ x: robot.x, y: robot.y });
+      if (trail.length > TRAIL_MAX) trail.shift();
+
+      // Recolección de monedas (auto al tocar)
+      coins.forEach(c => {
+        if (c.alive && Math.hypot(c.x - robot.x, c.y - robot.y) < ROBOT_R + COIN_R) {
+          c.alive = false;
+          score++;
+          scoreEl.textContent = score;
+          if (target && Math.hypot(target.x - c.x, target.y - c.y) < 5) target = null;
+        }
+      });
+      coins = coins.filter(c => c.alive);
+      if (coins.length === 0) spawnCoin();
+
+      // Bombas (después del delay)
+      if (elapsed > BOMB_DELAY && now - lastBombSpawn > BOMB_INTERVAL) {
+        spawnBomb();
+        lastBombSpawn = now;
+      }
+
+      bombs.forEach(b => {
+        if (!b.alive) return;
+        if (now - b.born > BOMB_TTL) { b.alive = false; return; }
+        if (Math.hypot(b.x - robot.x, b.y - robot.y) < BOMB_R + ROBOT_R) {
+          die();
+        }
+      });
+      bombs = bombs.filter(b => b.alive);
+
+      draw(elapsed);
+    }
+
+    function draw(elapsed) {
+      ctx.fillStyle = C.bg;
+      ctx.fillRect(0, 0, W, H);
+
+      // Barra de tiempo arriba
+      const progress = (elapsed || 0) / DURATION;
+      ctx.fillStyle = 'rgba(28,34,48,0.08)';
+      ctx.fillRect(0, 0, W, 4);
+      ctx.fillStyle = C.sun;
+      ctx.fillRect(0, 0, W * (1 - progress), 4);
+
+      // Trail
+      if (trail.length > 1) {
+        ctx.strokeStyle = 'rgba(44,74,62,0.22)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(trail[0].x, trail[0].y);
+        for (let i = 1; i < trail.length; i++) {
+          ctx.lineTo(trail[i].x, trail[i].y);
+        }
+        ctx.stroke();
+      }
+
+      // Target (crosshair)
+      if (target) {
+        ctx.strokeStyle = 'rgba(28,34,48,0.5)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(target.x, target.y, 8, 0, Math.PI*2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(target.x - 14, target.y);
+        ctx.lineTo(target.x - 4,  target.y);
+        ctx.moveTo(target.x + 4,  target.y);
+        ctx.lineTo(target.x + 14, target.y);
+        ctx.moveTo(target.x, target.y - 14);
+        ctx.lineTo(target.x, target.y - 4);
+        ctx.moveTo(target.x, target.y + 4);
+        ctx.lineTo(target.x, target.y + 14);
+        ctx.stroke();
+      }
+
+      // Monedas
+      ctx.fillStyle = C.sun;
+      coins.forEach(c => {
+        if (!c.alive) return;
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, COIN_R, 0, Math.PI*2);
+        ctx.fill();
+      });
+
+      // Bombas (X negras con pulse)
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = C.ink;
+      bombs.forEach(b => {
+        if (!b.alive) return;
+        const age = Date.now() - b.born;
+        const pulse = 1 + 0.15 * Math.sin(age / 120);
+        const r = BOMB_R * pulse;
+        ctx.beginPath();
+        ctx.moveTo(b.x - r, b.y - r);
+        ctx.lineTo(b.x + r, b.y + r);
+        ctx.moveTo(b.x + r, b.y - r);
+        ctx.lineTo(b.x - r, b.y + r);
+        ctx.stroke();
+      });
+
+      // Robot (triángulo orientado)
+      ctx.fillStyle = C.pine;
+      ctx.save();
+      ctx.translate(robot.x, robot.y);
+      ctx.rotate(robot.theta);
+      ctx.beginPath();
+      ctx.moveTo(ROBOT_R + 4, 0);
+      ctx.lineTo(-ROBOT_R, -ROBOT_R * 0.7);
+      ctx.lineTo(-ROBOT_R, ROBOT_R * 0.7);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function die() {
+      alive = false;
+      clearInterval(intervalId);
+      finish('Boom · ' + score + ' coins');
+    }
+
+    function finish(msg) {
+      if (score > best) {
+        best = score;
+        localStorage.setItem('robotBest', best);
+        bestEl.textContent = best;
+      }
+      overlayTx.textContent = msg;
+      playBtn.textContent = 'jugar otra vez →';
+      overlay.classList.remove('hidden');
+    }
+
+    function start() {
+      reset();
+      alive = true;
+      intervalId = setInterval(step, 16);
+      overlay.classList.add('hidden');
+      draw(0);
+    }
+
+    function stop() {
+      alive = false;
+      clearInterval(intervalId);
+    }
+
+    // Click/touch para colocar target
+    function placeTarget(clientX, clientY) {
+      if (!alive) return;
+      const rect = canvas.getBoundingClientRect();
+      const scale = W / rect.width;
+      target = {
+        x: (clientX - rect.left) * scale,
+        y: (clientY - rect.top) * scale
+      };
+    }
+
+    canvas.addEventListener('click', (e) => {
+      placeTarget(e.clientX, e.clientY);
+    });
+
+    canvas.addEventListener('touchstart', (e) => {
+      const t = e.touches[0];
+      placeTarget(t.clientX, t.clientY);
+      e.preventDefault();
+    }, { passive: false });
+
+    playBtn.addEventListener('click', start);
+
+    reset();
+    draw(0);
 
     return { start, stop };
   })();
