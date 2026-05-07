@@ -280,6 +280,7 @@ section.slide {
   justify-content: space-between;
   transition: all 0.4s cubic-bezier(.2,.8,.2,1);
   cursor: pointer; min-height: 220px;
+  text-decoration: none; color: inherit;
 }
 .project-card:hover {
   background: var(--ink); color: var(--cream);
